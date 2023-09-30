@@ -1,0 +1,850 @@
+<template>
+    <lightning-card>
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Loading" size="medium" variant="brand"></lightning-spinner>
+        </template>
+        <h3 slot="title">
+            <lightning-icon icon-name="utility:apex" size="small"></lightning-icon>
+            <span class="slds-var-p-left_small">Content Marketing</span>
+        </h3>
+        <div class="slds-p-horizontal_large">
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <div class="slds-col slds-size_12-of-12 slds-p-right_medium">
+                        <lightning-input required="true" data-id="scopeName" name="scopeName"
+                            value={contentMarketing.scopeName} label="What is the Scope Name" type="text"></lightning-input>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_4-of-12 slds-p-right_medium">
+                            <lightning-radio-group required="true" name="trainingSession" data-id="contentMarketPg"
+                                label="Do we need any training sessions?" value={contentMarketing.trainingSession}
+                                options={radioOptions} type="button" onchange={handleChange} variant="label-stacked">
+                            </lightning-radio-group>
+                        </div>
+                        <template if:true={trainingSession}>
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal_medium">
+                                <!--<lightning-combobox required="true" name="trainingType"
+                                value={contentMarketing.trainingType}
+                                label="Which types of training sessions do we need?" data-id="contentMarketPg"
+                                placeholder="Select Value" options={trainingTypes}></lightning-combobox>-->
+
+                                <c-multi-select-combobox name="trainingType" selected-values={selectedTrainingTypes}
+                                    multi-select="true" options={trainingTypes}
+                                    label="Which types of training sessions do we need?"></c-multi-select-combobox>
+                            </div>
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal_medium">
+                                <lightning-input required="true" data-id="contentMarketPg" name="trainingCount"
+                                    value={contentMarketing.trainingCount} onchange={handleTrainingCountChange}
+                                    label="How many training sessions do we need?" type="Number"></lightning-input>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <div class="slds-grid slds-wrap">
+                        <template for:each={trainingSessionData} for:item="session" for:index="index">
+                            <div key={session} class="slds-col slds-size_4-of-12 slds-p-right_medium">
+                                <lightning-input required="true" data-id="contentMarketPg"
+                                    name="trainingSessionDuration" onchange={handleTrainingDataChange}
+                                    value={session.trainingSessionDuration} label="Session duration" type="number"
+                                    data-index={index} step=".01">
+                                </lightning-input>
+                            </div>
+                            <div key={session} class="slds-col slds-size_4-of-12 slds-p-horizontal_medium">
+
+                                <c-multi-select-combobox name="trainingSessionPerson"
+                                    selected-values={session.trainingSessionPerson} data-index={index}
+                                    multi-select="true" onselect={handleTrainingDataChange} options={roles}
+                                    label="Team Member Assigned"></c-multi-select-combobox>
+                            </div>
+                            <div key={session} class="slds-col slds-size_4-of-12 slds-p-horizontal_medium">
+                                <lightning-input required="true" data-id="contentMarketPg" name="trainingSessionDate"
+                                    data-index={index} value={session.trainingSessionDate}
+                                    onchange={handleTrainingDataChange} label="Date session will occur" type="date" data-cdate="dateType">
+                                </lightning-input>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <div class="slds-col slds-size_6-of-12">
+                        <template if:true={showSelectService}>
+
+                            <c-multi-select-combobox name="service" selected-values={selectedServices}
+                                multi-select="true" onselect={handleMultiSelect} options={services}
+                                label="Which services will be included?">
+                            </c-multi-select-combobox>
+                        </template>
+
+                    </div>
+                </div>
+                <template if:true={Blogging}>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_12-of-12">
+                            <div class="slds-text-heading_small">Blogging</div>
+                        </div>
+                    </div>
+                    <!--Content Session Blogging start-->
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-input required="true"
+                                label="How many content sessions will we need for this campaign?"
+                                value={contentMarketing.Blogging.contentSessionCount} name="contentSessionCount"
+                                data-id="bloggingSD" type="number" onchange={handleBloggingCountChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={bloggingSessionData} for:item="session" for:index="index">
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                    <lightning-input required="true" data-id="bloggingSD" name="contentSessionDuration"
+                                        onchange={handleBlogginSessionDataChange} value={session.contentSessionDuration} step=".01"
+                                        label="Session duration" type="number"  data-index={index}>
+                                    </lightning-input>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                    <lightning-input required="true" data-id="bloggingSD" name="prepSessionDuration"
+                                        onchange={handleBlogginSessionDataChange} value={session.prepSessionDuration} step=".01"
+                                        label="Prep Session duration" type="number"  data-index={index}>
+                                    </lightning-input>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+    
+                                    <c-multi-select-combobox name="contentSessionPerson"
+                                        selected-values={session.contentSessionPerson} data-index={index}
+                                        multi-select="true" onselect={handleBlogginSessionDataChange} options={roles}
+                                        label="Team Member Assigned"></c-multi-select-combobox>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="bloggingSD" name="contentSessionDate"
+                                        data-index={index} value={session.contentSessionDate}
+                                        onchange={handleBlogginSessionDataChange} label="Date session will occur" type="date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <!--Content Session Blogging end-->
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="bloggingTeamCopy"
+                                value={contentMarketing.Blogging.bloggingTeamCopy}
+                                label="Who will the action items belong to?" data-id="blogging"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="bloggingTeamEdit"
+                                value={contentMarketing.Blogging.bloggingTeamEdit}
+                                label="Who will be in charge of editing the blogs?" data-id="blogging"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <c-multi-select-combobox name="bloggingTypes" selected-values={selectedBlogTypes}
+                                data-index={index} multi-select="true" options={bloggingTypes}
+                                onselect={handleBlogginTypeChange} label="Which types will be Posted?">
+                            </c-multi-select-combobox>
+                        </div>
+                    </div>
+                    <template if:true={showMiniMonthlyData}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <!--<c-dynamic-multi-input-grid name="bloggingMonthlyData" row-names={bloggingRowNames}
+                                public-monthly-data={contentMarketing.Blogging.bloggingMonthlyData}
+                                start-date={monthlyStartDate} end-date={monthlyEndDate}></c-dynamic-multi-input-grid>-->
+                                <c-multi-input-grid-comp name="miniMonthlyData" row-names={miniRowNames} public-monthly-data={contentMarketing.Blogging.miniMonthlyData} start-date={monthlyStartDate} end-date={monthlyEndDate} ></c-multi-input-grid-comp>
+                        </div>
+                    </template>
+                        <template if:true={showRegularMonthlyData}>
+                            <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                                <c-multi-input-grid-comp name="regularMonthlyData" row-names={regularRowNames} public-monthly-data={contentMarketing.Blogging.regularMonthlyData} start-date={monthlyStartDate} end-date={monthlyEndDate} ></c-multi-input-grid-comp>
+                            </div>
+                        </template>
+                        <template if:true={showLongMonthlyData}>
+                            <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                                <c-multi-input-grid-comp name="longMonthlyData" row-names={longRowNames} public-monthly-data={contentMarketing.Blogging.longMonthlyData} start-date={monthlyStartDate} end-date={monthlyEndDate} ></c-multi-input-grid-comp>
+                            </div>
+                        </template>
+                        <template if:true={showEditedMonthlyData}>
+                            <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                                <c-multi-input-grid-comp name="editedMonthlyData" row-names={editedRowNames} public-monthly-data={contentMarketing.Blogging.editedMonthlyData} start-date={monthlyStartDate} end-date={monthlyEndDate} ></c-multi-input-grid-comp>
+                            </div>
+                        </template>
+                    
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12">
+                                <lightning-radio-group required="true" name="clientPlatformSharingIncharge"
+                                    data-id="blogging"
+                                    label="Will we be in charge of sharing on the client's social platforms?"
+                                    value={contentMarketing.Blogging.clientPlatformSharingIncharge}
+                                    options={radioOptions} type="button" onchange={handleChange}
+                                    variant="label-stacked">
+                                </lightning-radio-group>
+                            </div>
+                            <template if:true={clientPlatformSharingIncharge}>
+                                <div class="slds-col slds-size_6-of-12">
+                                    <c-multi-select-combobox name="socialPlatforms" selected-values={selectedPlatforms}
+                                        multi-select="true" options={socialPlatforms} label="Which Platforms?">
+                                    </c-multi-select-combobox>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12">
+                                <lightning-radio-group required="true" name="blogCategories" data-id="blogging"
+                                    label="Will we be setting up blog categories?"
+                                    value={contentMarketing.Blogging.blogCategories} options={radioOptions}
+                                    type="button" onchange={handleChange} variant="label-stacked">
+                                </lightning-radio-group>
+                            </div>
+                            <template if:true={blogCategories}>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="blogging" name="blogCategoryDate"
+                                        value={contentMarketing.Blogging.blogCategoryDate} label="Date" type="Date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-input-rich-text data-id="blogging" name="bloggingStrategyNotes" label="Strategy notes"
+                            value={contentMarketing.Blogging.bloggingStrategyNotes}></lightning-input-rich-text>
+                    </div>
+                </template>
+                <template if:true={EmailMarketing}>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_12-of-12">
+                            <div class="slds-text-heading_small">Email Marketing</div>
+                        </div>
+                    </div>
+
+                    <!--Content Session Email Marketing start-->
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-input required="true"
+                                label="How many content sessions will we need for this campaign?"
+                                value={contentMarketing.EmailMarketing.contentSessionCount} name="contentSessionCount"
+                                data-id="emailMarketingSD" type="number" onchange={handleEmailMarketingCountChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={emailMarketingSessionData} for:item="session" for:index="index">
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                    <lightning-input required="true" data-id="emailMarketingSD" name="contentSessionDuration"
+                                        onchange={handleEmailMarketingSessionDataChange} value={session.contentSessionDuration} step=".01"
+                                        label="Session duration" type="number"  data-index={index}>
+                                    </lightning-input>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                    <lightning-input required="true" data-id="emailMarketingSD" name="prepSessionDuration"
+                                        onchange={handleEmailMarketingSessionDataChange} value={session.prepSessionDuration} step=".01"
+                                        label="Prep Session duration" type="number"  data-index={index}>
+                                    </lightning-input>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+    
+                                    <c-multi-select-combobox name="contentSessionPerson"
+                                        selected-values={session.contentSessionPerson} data-index={index}
+                                        multi-select="true" onselect={handleEmailMarketingSessionDataChange} options={roles}
+                                        label="Team Member Assigned"></c-multi-select-combobox>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketingSD" name="contentSessionDate"
+                                        data-index={index} value={session.contentSessionDate}
+                                        onchange={handleEmailMarketingSessionDataChange} label="Date session will occur" type="date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <!--Content Session Email Marketing end-->
+
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="emarketingTeamEmail"
+                                value={contentMarketing.EmailMarketing.emarketingTeamEmail}
+                                label="Who will the action items belong to?" data-id="emailMarketing"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="emarketingTeamEdit"
+                                value={contentMarketing.EmailMarketing.emarketingTeamEdit}
+                                label="Who will be in charge of editing the emails?" data-id="emailMarketing"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12 slds-p-right_medium">
+                                <lightning-radio-group required="true" name="domainValidated" data-id="emailMarketing"
+                                    label="Has the client's domain been validated?"
+                                    value={contentMarketing.EmailMarketing.domainValidated} options={radioOptions}
+                                    type="button" onchange={handleChange} variant="label-stacked">
+                                </lightning-radio-group>
+                            </div>
+                            <template if:true={domainValidated}>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing" name="domainValidatedDate"
+                                        value={contentMarketing.EmailMarketing.domainValidatedDate} label="What date will the domain be verified?"
+                                        type="Date" data-cdate="dateType"></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12 slds-p-right_medium">
+                                <lightning-radio-group required="true" name="mailChimpProfile" data-id="emailMarketing"
+                                    label="Will we be creating a new or updating an existing profile with MailChimp for this client?"
+                                    value={contentMarketing.EmailMarketing.mailChimpProfile} options={profileOptions}
+                                    type="button" onchange={handleChange} variant="label-stacked">
+                                </lightning-radio-group>
+                            </div>
+                            <template if:true={notMailChimp}>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                <lightning-input required="true" data-id="emailMarketing" name="mailChimpProfileDate"
+                                    value={contentMarketing.EmailMarketing.mailChimpProfileDate} label="Date"
+                                    type="Date" data-cdate="dateType"></lightning-input>
+                            </div>
+                        </template>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12 slds-p-right_medium">
+
+                                <lightning-input required="true" data-id="emailMarketing" name="newsLetterCount"
+                                    value={contentMarketing.EmailMarketing.newsLetterCount}
+                                    label="How many email newsletter templates are there to design?" type="Number">
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                <lightning-input required="true" data-id="emailMarketing" name="newsLetterDate"
+                                    value={contentMarketing.EmailMarketing.newsLetterDate} label="Date" type="Date" data-cdate="dateType">
+                                </lightning-input>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_4-of-12 slds-p-right_medium">
+                            <c-multi-select-combobox name="campaignTypes" selected-values={selectedCampaignTypes}
+                                multi-select="true" onselect={handleCampaignTypeChange} options={campaignTypes}
+                                label=" Which campaign types will be used?">
+                            </c-multi-select-combobox>
+                        </div>
+
+
+                    </div>
+                    <template if:true={DRIP}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing" name="dripCampaignCount"
+                                        value={contentMarketing.EmailMarketing.dripCampaignCount}
+                                        label="How many finished Drip campaigns will be created?" type="Number"
+                                        onchange={HandleCampaignFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing" name="dripCampaignDate"
+                                        value={contentMarketing.EmailMarketing.dripCampaignDate} label="Date"
+                                        type="Date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={NEWSLETTER}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing"
+                                        name="newsletterCampaignCount"
+                                        value={contentMarketing.EmailMarketing.newsletterCampaignCount}
+                                        label="How many finished Newsletter campaigns will be created?" type="Number"
+                                        onchange={HandleCampaignFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing"
+                                        name="newsletterCampaignDate"
+                                        value={contentMarketing.EmailMarketing.newsletterCampaignDate} label="Date"
+                                        type="Date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={DRIPTEXT}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing"
+                                        name="dripTextCampaignCount"
+                                        value={contentMarketing.EmailMarketing.dripTextCampaignCount}
+                                        label="How many finished Drip(Text-only) campaigns will be created?"
+                                        type="Number" onchange={HandleCampaignFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing"
+                                        name="dripTextCampaignDate"
+                                        value={contentMarketing.EmailMarketing.dripTextCampaignDate} label="Date"
+                                        type="Date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={REENGAGEMENT}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing"
+                                        name="reengagementCampaignCount"
+                                        value={contentMarketing.EmailMarketing.reengagementCampaignCount}
+                                        label="How many finished Re-engagement campaigns will be created?" type="Number"
+                                        onchange={HandleCampaignFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="emailMarketing"
+                                        name="reengagementCampaignDate"
+                                        value={contentMarketing.EmailMarketing.reengagementCampaignDate} label="Date"
+                                        type="Date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={showEMTables} >
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <label>For each of the following, how many emails will be sent per month?</label>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <template if:true={DRIP}>
+                            <c-dynamic-multi-input-grid data-id="dripTextMonthlyData" name="dripTextMonthlyData" row-names={dripTextRowNames}
+                                public-monthly-data={contentMarketing.EmailMarketing.dripTextMonthlyData}
+                                start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                            </c-dynamic-multi-input-grid>
+                        </template>
+                        <template if:true={DRIPTEXT}>
+                            <c-dynamic-multi-input-grid name="dripTextOnlyMonthlyData" row-names={dripTextOnlyRowNames}
+                                public-monthly-data={contentMarketing.EmailMarketing.dripTextOnlyMonthlyData}
+                                start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                            </c-dynamic-multi-input-grid>
+                        </template>
+                        <template if:true={newletterRowNames}>
+                            <c-dynamic-multi-input-grid name="newsLetterMonthlyData" row-names={newletterRowNames}
+                                public-monthly-data={contentMarketing.EmailMarketing.newsLetterMonthlyData}
+                                start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                            </c-dynamic-multi-input-grid>
+                        </template>
+                        <template if:true={REENGAGEMENT}>
+                            <c-dynamic-multi-input-grid name="reEngageMonthlyData" row-names={reengagementRowNames}
+                                public-monthly-data={contentMarketing.EmailMarketing.reEngageMonthlyData}
+                                start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                            </c-dynamic-multi-input-grid>
+                        </template>
+                    </div>
+
+                    <template if:true={DRIP}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <label>
+                                Select the months Drip(s) will be Optimized for
+                            </label>
+                        </div>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <c-dynamic-multi-input-grid name="dripTextOptMonthlyData" row-names={dripTextRowNames}
+                                public-monthly-data={contentMarketing.EmailMarketing.dripTextOptMonthlyData}
+                                start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                            </c-dynamic-multi-input-grid>
+                        </div>
+                    </template>
+                    
+                    
+                        
+                        <template if:true={DRIPTEXT}>
+                            <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                                <label>
+                                    Select the months Drip(s) will be Optimized for
+                                </label>
+                            </div>
+                            <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                                <c-dynamic-multi-input-grid name="dripTextOnlyOptMonthlyData"
+                                    row-names={dripTextOnlyOptMonthlyData}
+                                    public-monthly-data={contentMarketing.EmailMarketing.dripTextOnlyOptMonthlyData}
+                                    start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                                </c-dynamic-multi-input-grid>
+                            </div>
+                        </template>
+                    </template>
+
+
+
+
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <label>What will the MailChimp list size monthly investment be?</label>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <c-multi-input-grid-comp name="mailChimpMonthlyData" row-names={mailChimpRowNames}
+                            public-monthly-data={contentMarketing.EmailMarketing.mailChimpMonthlyData}
+                            start-date={monthlyStartDate} end-date={monthlyEndDate}></c-multi-input-grid-comp>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-input-rich-text data-id="emailMarketing" name="emarketingStrategyNotes"
+                            label="Strategy notes" value={contentMarketing.EmailMarketing.emarketingStrategyNotes}>
+                        </lightning-input-rich-text>
+                    </div>
+
+                </template>
+                <template if:true={SocialPosting}>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_12-of-12">
+                            <div class="slds-text-heading_small">Social Posting</div>
+                        </div>
+                    </div>
+
+                    <!--Content Session Social Posting start-->
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-input required="true"
+                                label="How many content sessions will we need for this campaign?"
+                                value={contentMarketing.SocialPosting.contentSessionCount} name="contentSessionCount"
+                                data-id="socialPostingSD" type="number" onchange={handleSocialPostingCountChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={socPostingSessionData} for:item="session" for:index="index">
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                    <lightning-input required="true" data-id="socialPostingSD" name="contentSessionDuration"
+                                        onchange={handleSocPostingSessionDataChange} value={session.contentSessionDuration} step=".01"
+                                        label="Session duration" type="number"  data-index={index}>
+                                    </lightning-input>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                    <lightning-input required="true" data-id="socialPostingSD" name="prepSessionDuration"
+                                        onchange={handleSocPostingSessionDataChange} value={session.prepSessionDuration} step=".01"
+                                        label="Prep Session duration" type="number"  data-index={index}>
+                                    </lightning-input>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+    
+                                    <c-multi-select-combobox name="contentSessionPerson"
+                                        selected-values={session.contentSessionPerson} data-index={index}
+                                        multi-select="true" onselect={handleSocPostingSessionDataChange} options={roles}
+                                        label="Team Member Assigned"></c-multi-select-combobox>
+                                </div>
+                                <div key={session} class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="socialPostingSD" name="contentSessionDate"
+                                        data-index={index} value={session.contentSessionDate}
+                                        onchange={handleSocPostingSessionDataChange} label="Date session will occur" type="date" data-cdate="dateType">
+                                    </lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <!--Content Session Social Posting end-->
+
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="socialPostTeamMember"
+                                value={contentMarketing.SocialPosting.socialPostTeamMember}
+                                label="Who will the action items belong to?" data-id="socialPosting"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="socialPostTeamEdit"
+                                value={contentMarketing.SocialPosting.socialPostTeamEdit}
+                                label="Who will be in charge of editing the content?" data-id="socialPosting"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                <lightning-radio-group required="true" name="socialProfile" data-id="socialPosting"
+                                    label="Do we need to create or update any social profile pages?"
+                                    value={contentMarketing.SocialPosting.socialProfile} options={radioOptions}
+                                    type="button" onchange={handleChange} variant="label-stacked">
+                                </lightning-radio-group>
+                            </div>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                <template if:true={socialProfilePages}>
+                                    <c-multi-select-combobox name="socialProfileTypes"
+                                        selected-values={selectedSocialProfileTypes} multi-select="true"
+                                        options={socialProfileTypes} label="Which platforms?"
+                                        onselect={handleProfilePageChange}>
+                                    </c-multi-select-combobox>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <template if:true={facebook}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-radio-group required="true" name="facebookProfile"
+                                        data-id="socialPosting"
+                                        label="Do we need to create or update Facebook profile pages?"
+                                        value={contentMarketing.SocialPosting.facebookProfile} options={profileOptions}
+                                        type="button" onchange={handleChange} variant="label-stacked">
+                                    </lightning-radio-group>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="socialPosting" name="facebookProfileDate"
+                                        value={contentMarketing.SocialPosting.facebookProfileDate} label="Date"
+                                        type="date" data-cdate="dateType"></lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={instagram}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-radio-group required="true" name="instagramProfile"
+                                        data-id="socialPosting"
+                                        label="Do we need to create or update Instagram profile pages?"
+                                        value={contentMarketing.SocialPosting.instagramProfile} options={profileOptions}
+                                        type="button" onchange={handleChange} variant="label-stacked">
+                                    </lightning-radio-group>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="socialPosting" name="instagramProfileDate"
+                                        value={contentMarketing.SocialPosting.instagramProfileDate} label="Date"
+                                        type="date" data-cdate="dateType"></lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={linkedIn}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-radio-group required="true" name="linkedInProfile"
+                                        data-id="socialPosting"
+                                        label="Do we need to create or update LinkedIn profile pages?"
+                                        value={contentMarketing.SocialPosting.linkedInProfile} options={profileOptions}
+                                        type="button" onchange={handleChange} variant="label-stacked">
+                                    </lightning-radio-group>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="socialPosting" name="linkedInProfileDate"
+                                        value={contentMarketing.SocialPosting.linkedInProfileDate} label="Date"
+                                        type="date" data-cdate="dateType"></lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={twitter}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-radio-group required="true" name="twitterProfile" data-id="socialPosting"
+                                        label="Do we need to create or update Twitter profile pages?"
+                                        value={contentMarketing.SocialPosting.twitterProfile} options={profileOptions}
+                                        type="button" onchange={handleChange} variant="label-stacked">
+                                    </lightning-radio-group>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="socialPosting" name="twitterProfileDate"
+                                        value={contentMarketing.SocialPosting.twitterProfileDate} label="Date"
+                                        type="date" data-cdate="dateType"></lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={youtube}>
+                        <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-radio-group required="true" name="youtubeProfile" data-id="socialPosting"
+                                        label="Do we need to create or update YouTube profile pages?"
+                                        value={contentMarketing.SocialPosting.youtubeProfile} options={profileOptions}
+                                        type="button" onchange={handleChange} variant="label-stacked">
+                                    </lightning-radio-group>
+                                </div>
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                    <lightning-input required="true" data-id="socialPosting" name="youtubeProfileDate"
+                                        value={contentMarketing.SocialPosting.youtubeProfileDate} label="Date"
+                                        type="date" data-cdate="dateType"></lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+
+                    <!--<div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <c-multi-select-combobox name="socialPostingThemes"
+                            selected-values={selectedSocialPostingThemes} multi-select="true" options={themes}
+                            label="Which post themes will be used? Select up to 5. (optional)">
+                        </c-multi-select-combobox>
+                    </div>-->
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <label>How much time per week will be needed for Community Management?</label>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <c-multi-input-grid-Comp name="communityMgtMonthlyData" row-names={communityMgtRowNames}
+                            public-monthly-data={contentMarketing.SocialPosting.communityMgtMonthlyData}
+                            start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                        </c-multi-input-grid-Comp>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <label>How many posts will we create per week?</label>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <c-multi-input-grid-Comp name="postsMonthlyData" row-names={postsRowNames}
+                            public-monthly-data={contentMarketing.SocialPosting.postsMonthlyData}
+                            start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                        </c-multi-input-grid-Comp>
+                    </div>
+                    <!--<div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <label>For each theme selected, provide an example post. (You must include at least 1 sample
+                            post)</label>
+
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-textarea data-id="socialPosting" name="theme1" variant="label-hidden"
+                            placeholder="Type here" value={contentMarketing.SocialPosting.theme1}>
+                        </lightning-textarea>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-textarea data-id="socialPosting" name="theme2" variant="label-hidden"
+                            placeholder="Type here" value={contentMarketing.SocialPosting.theme1}>
+                        </lightning-textarea>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-textarea data-id="socialPosting" name="theme3" variant="label-hidden"
+                            placeholder="Type here" value={contentMarketing.SocialPosting.theme3}>
+                        </lightning-textarea>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-textarea data-id="socialPosting" name="theme4" variant="label-hidden"
+                            placeholder="Type here" value={contentMarketing.SocialPosting.theme4}>
+                        </lightning-textarea>
+                    </div>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-textarea data-id="socialPosting" name="theme5" variant="label-hidden"
+                            placeholder="Type here" value={contentMarketing.SocialPosting.theme5}>
+                        </lightning-textarea>
+                    </div>-->
+
+
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                <lightning-radio-group required="true" name="additionalNetworks" data-id="socialPosting"
+                                    label="Will we syndicate posts to additional networks?"
+                                    value={contentMarketing.SocialPosting.additionalNetworks} options={radioOptions}
+                                    type="button" onchange={handleChange} variant="label-stacked">
+                                </lightning-radio-group>
+                            </div>
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_medium">
+                                <template if:true={additionalNetworks}>
+                                    <c-multi-select-combobox name="socialPostingPlatform"
+                                        selected-values={selectedSocialPostingPlatforms} multi-select="true"
+                                        options={socialPostingPlatforms} label="Which platforms?">
+                                    </c-multi-select-combobox>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <lightning-input-rich-text data-id="socialPosting" name="socialPostingStrategyNotes"
+                            label="Strategy notes" value={contentMarketing.SocialPosting.socialPostingStrategyNotes}>
+                        </lightning-input-rich-text>
+                    </div>
+                </template>
+
+                <template if:true={ReviewManagement}>
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_12-of-12">
+                            <div class="slds-text-heading_small">Review Management</div>
+                        </div>
+                    </div>
+
+                    <!--Content Review Management start-->
+                    <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning-combobox required="true" name="reviewManagementTeamMember"
+                                value={contentMarketing.ReviewManagement.reviewManagementTeamMember}
+                                label="Who will the action items belong to?" data-id="reviewManagement"
+                                placeholder="Select Value" options={roles}></lightning-combobox>
+                        </div>
+                    </div>
+
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_6-of-12 slds-p-right_medium">
+                            <lightning-radio-group required="true" name="createNewProfileAccount" data-id="reviewManagement"
+                                label="Will we be creating a new account or updating an existing account with Birdeye for this client?"
+                                value={contentMarketing.ReviewManagement.createNewProfileAccount} options={profileOptions}
+                                type="button" onchange={handleChange} variant="label-stacked">
+                            </lightning-radio-group>
+                        </div>
+                        
+                        <template if:true={notNewProfile}>
+                            <div class="slds-col slds-size_3-of-12 slds-p-horizontal_medium">
+                                <lightning-input required="true" data-id="reviewManagement" name="sa"
+                                    label="Date"
+                                    value={contentMarketing.ReviewManagement.createNewProfileAccountDate} 
+                                    type="Date" data-cdate="dateType"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_3-of-12 slds-p-right_medium">
+                                <lightning-input required="true" data-id="contentMarketPg"
+                                    name="reviewManagementHoursToSetup" 
+                                    value={contentMarketing.ReviewManagement.reviewManagementHoursToSetup} label="# hours for setup" type="number"
+                                    step=".01">
+                                </lightning-input>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <lightning-input required="true" data-id="hoursManagement" name="hoursManagement"
+                    value={contentMarketing.ReviewManagement.hoursManagement} 
+                    label="How many hours per month will be required for management?(hours_mgmt)?" type="Number"></lightning-input>
+                 </div>
+
+                 <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <c-dynamic-multi-input-grid name="hoursPerMonthForManagement"
+                        row-names={hoursPerMonthRowsName}
+                        public-monthly-data={contentMarketing.ReviewManagement.hoursPerMonthForManagement}
+                        start-date={monthlyStartDate} end-date={monthlyEndDate}>
+                    </c-dynamic-multi-input-grid>
+                </div>
+            
+                <div class="slds-col slds-size_12-of-12 slds-p-top_medium">
+                    <lightning-input-rich-text data-id="ReviewManagement" name="reviewManagementStrategyNotes" label="Strategy notes"
+                        value={contentMarketing.ReviewManagement.reviewManagementStrategyNotes}></lightning-input-rich-text>
+                </div>
+
+            </template>
+            </div>
+        </div>
+        <!--<p slot="footer">
+            <lightning-button label="Save" variant="brand" onclick={handleSubmit}></lightning-button>
+        </p>-->
+    </lightning-card>
+</template>
